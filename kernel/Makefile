@@ -20,54 +20,59 @@ CPFLAGS:=$(CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
 LDFLAGS:=$(LDFLAGS) $(KERNEL_ARCH_LDFLAGS)
 LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 
-OBJS:=\
-$(KERNEL_ARCH_OBJS) \
-$(KERNEL_COMMON_OBJS) \
-kernel/kernel.o \
+SRCFILES := $(KERNEL_ARCH_SRC) \
+	    $(KERNEL_COMMON_SRC)
+ASMFILES := $(KERNEL_ARCH_ASM)
+
+DEPFILES := $(patsubst %.c,%.c.d,$(SRCFILES))
+OBJS :=  $(patsubst %.asm,%.asm.o,$(ASMFILES)) $(patsubst %.c,%.c.o,$(SRCFILES)) 
+CRTI_OBJ := $(CRTI).o
+CRTN_OBJ := $(CRTN).o
 
 ALL_OUR_OBJS:=\
 $(CRTI_OBJ) \
 $(OBJS) \
-$(CRTN_OBJ) \
+$(CRTN_OBJ)
 
 OBJ_LINK_LIST:=\
 $(CRTI_OBJ) \
 $(CRTBEGIN_OBJ) \
 $(OBJS) \
 $(CRTEND_OBJ) \
-$(CRTN_OBJ) \
+$(CRTN_OBJ)
 
-all: compile_command.json kernel
+INCLUDES := $(shell find include -name '*.h' ) $(shell find $(ARCHDIR)/include)
 
-.PHONY: all clean install install-headers install-kernel
+all: kernel
 
-.kernel: $(OBJ_LINK_LIST) $(ARCHDIR)/linker.ld
-ifndef BEAR
+.PHONY: all clean install-headers install-kernel
+
+kernel.kernel: $(OBJ_LINK_LIST) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(OBJ_LINK_LIST) $(LDFLAGS) $(LIBS)
-	BEAR=yep $(MAKE) -C .. bear 
-else
-	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(OBJ_LINK_LIST) $(LDFLAGS) $(LIBS)
-endif
 
-%.o: %.c
-	$(CC) -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS) $(CONF)
+%.c.o: %.c Makefile
+	$(CC) -c $< -o $@ -std=gnu11 -MMD $(CFLAGS) $(CPPFLAGS) $(CONF) 
 
-%.o: %.S
-	$(CC) -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
-
-%.o: %.asm
+%.asm.o: %.asm Makefile
 	$(ASM) $(ASFLAGS) $< -o $@
 
+%.asm: # Cancel implicit rule
+
 clean:
-	rm -f kernel $(OBJS) $(ALL_OUR_OBJS) *.o */*.o */*/*.o
+	rm -f kernel.kernel $(OBJS) $(ALL_OUR_OBJS) $(DEPFILES)
 
-install: install-headers install-kernel
+install-headers: $(DESTDIR)$(INCLUDEDIR)/kernel
 
-install-headers:
+$(DESTDIR)$(INCLUDEDIR)/kernel: $(INCLUDES)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/kernel
-	cp -RTv include $(DESTDIR)$(INCLUDEDIR)/kernel
-	cp -RTv $(ARCHDIR)/include $(DESTDIR)$(INCLUDEDIR)/kernel/$(HOSTARCH)
+	cp -RTpv include $@
+	cp -RTpv $(ARCHDIR)/include $@/$(HOSTARCH)
+	touch $@ # Update timestamps
 
-install-kernel: kernel
+install-kernel: $(DESTDIR)$(BOOTDIR)/kernel.kernel
+
+$(DESTDIR)$(BOOTDIR)/kernel.kernel: kernel.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp kernel $(DESTDIR)$(BOOTDIR)
+	cp kernel.kernel $(DESTDIR)$(BOOTDIR)
+
+-include $(DEPFILES)

@@ -32,7 +32,7 @@ export LIBS_COMMON:=
 
 QEMU=qemu-system-$(HOSTARCH)
 
-QEMU_FLAGS_COMMON?= -kernel kernel/kernel  -nographic -serial mon:stdio
+QEMU_FLAGS_COMMON?= -kernel kernel/kernel.kernel  -nographic -serial mon:stdio
 
 QEMU_FLAGS?=
 
@@ -44,6 +44,7 @@ BOCHS_FLAGS?=-f boshrc
 .PHONY: all bear clean install-all install install-headers qemu qemu-gdb bochs
 
 all: install-all
+
 install-all: install-headers install
 
 
@@ -51,14 +52,15 @@ install-headers:
 	$(MAKE) -C libk install-headers
 	$(MAKE) -C kernel install-headers
 install:
-	$(MAKE) -C libk install
-	$(MAKE) -C kernel install
+	$(MAKE) -C libk install-libs
+	$(MAKE) -C kernel install-kernel
 clean:
 	$(MAKE) -C libk clean
 	$(MAKE) -C kernel clean
 	rm -f $(OS_NAME).iso
 	rm -rf $(DESTDIR)
 	rm -rf isodir
+	rm -f compile_commands.json
 
 qemu: all
 	$(QEMU) $(QEMU_FLAGS_COMMON) $(QEMU_FLAGS)
@@ -77,6 +79,6 @@ compile_command.json: bear
 $(OS_NAME).iso: all
 	mkdir -p isodir/boot/grub
 
-	cp sysroot/boot/kernel isodir/boot/kernel
+	cp sysroot/boot/kernel.kernel isodir/boot/kernel.kernel
 	cp grub.cfg isodir/boot/grub/grub.cfg
-	$(MK_RESCUE) -o OS_NAME.iso isodir
+	$(MK_RESCUE) -o $(OS_NAME).iso isodir

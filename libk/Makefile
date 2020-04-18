@@ -11,15 +11,15 @@ include def.config
 HOSTEDOBJS:=\
 $(ARCH_HOSTEDOBJS) \
 
-OBJS:=\
+OBJS=\
 $(FREEOBJS) \
 $(HOSTEDOBJS) \
 
-BINARIES=libk.a
+INCLUDES := $(shell find include -name '*.h')
 
-all: $(BINARIES)
+all: libk.a
 
-.PHONY: all clean install install-headers install-libs
+.PHONY: all clean install-headers install-libs
 
 libk.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)
@@ -31,14 +31,17 @@ libk.a: $(OBJS)
 	$(ASM) $(ASFLAGS) -o $@ $< 
 
 clean:
-	rm -f $(BINARIES) $(OBJS) *.o */*.o */*/*.o
+	rm -f libk.a $(OBJS)
 
-install: install-headers install-libs
+install-headers: $(DESTDIR)$(INCLUDEDIR)/libk
 
-install-headers:
-	mkdir -p $(DESTDIR)$(INCLUDEDIR)/libk
-	cp -RTv include $(DESTDIR)$(INCLUDEDIR)/libk
+$(DESTDIR)$(INCLUDEDIR)/libk: $(INCLUDES)
+	mkdir -p $@
+	cp -RTpv include $@
+	touch $@
 
-install-libs: $(BINARIES)
+install-libs: $(DESTDIR)$(LIBDIR)/libk.a
+
+$(DESTDIR)$(LIBDIR)/libk.a: libk.a
 	mkdir -p $(DESTDIR)$(LIBDIR)
-	cp $(BINARIES) $(DESTDIR)$(LIBDIR)
+	cp libk.a $@
