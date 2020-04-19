@@ -25,6 +25,10 @@ export CFLAGS_COMMON:=-g -Og\
     -std=gnu11 \
     -ffreestanding -fbuiltin -Werror\
     -I=$(INCLUDEDIR) \
+    -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
+            -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
+            -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
+            -Wconversion -Wstrict-prototypes
 
 export CPPFLAGS_COMMON:=
 export LDFLAGS_COMMON:=
@@ -41,9 +45,14 @@ QEMU_DEBUG_FLAGS?= -S -s -d guest_errors
 BOCHS?=bochs
 BOCHS_FLAGS?=-f boshrc
 
-.PHONY: all bear clean install-all install install-headers qemu qemu-gdb bochs
+.PHONY: all bear clean install-all install install-headers qemu qemu-gdb bochs todolist
 
 all: install-all
+
+todolist: 
+	$(MAKE) -C libk todolist
+	$(MAKE) -C kernel todolist
+
 
 install-all: install-headers install
 

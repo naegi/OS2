@@ -22,6 +22,7 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 
 SRCFILES := $(KERNEL_ARCH_SRC) \
 	    $(KERNEL_COMMON_SRC)
+
 ASMFILES := $(KERNEL_ARCH_ASM)
 
 DEPFILES := $(patsubst %.c,%.c.d,$(SRCFILES))
@@ -43,9 +44,14 @@ $(CRTN_OBJ)
 
 INCLUDES := $(shell find include -name '*.h' ) $(shell find $(ARCHDIR)/include)
 
+
+.PHONY: all clean install-headers install-kernel todolist
+
 all: kernel
 
-.PHONY: all clean install-headers install-kernel
+todolist: 
+	grep -nRi --color=always --include='*.c' --include='*.h' --include='*.asm' todo
+	grep -nRi --color=always --include='*.c' --include='*.h' --include='*.asm' fixme
 
 kernel.kernel: $(OBJ_LINK_LIST) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(OBJ_LINK_LIST) $(LDFLAGS) $(LIBS)

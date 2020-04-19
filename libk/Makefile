@@ -19,7 +19,11 @@ INCLUDES := $(shell find include -name '*.h')
 
 all: libk.a
 
-.PHONY: all clean install-headers install-libs
+.PHONY: all clean install-headers install-libs todolist
+
+todolist:
+	@grep -nRi --color=always --include='*.c' --include='*.h' todo || :
+	@grep -nRi --color=always --include='*.c' --include='*.h' fixme || :
 
 libk.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)
