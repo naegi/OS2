@@ -1,19 +1,19 @@
 CFLAGS:=$(CFLAGS_COMMON)
 CPPFLAGS:=$(CPPFLAGS_COMMON)
 
-FREEOBJS:=\
-$(ARCH_FREEOBJS)
 
 include def.config
 
-#include xxx/make.config
+include io/make.config
+include utils/make.config
 
 HOSTEDOBJS:=\
-$(ARCH_HOSTEDOBJS) \
+    $(ARCH_HOSTEDOBJS) \
 
-OBJS=\
-$(FREEOBJS) \
-$(HOSTEDOBJS) \
+SRCFILES := $(LIBK_SRC)
+
+DEPFILES := $(patsubst %.c,%.c.d,$(SRCFILES))
+OBJS := $(patsubst %.c,%.c.o,$(SRCFILES)) 
 
 INCLUDES := $(shell find include -name '*.h')
 
@@ -28,11 +28,11 @@ todolist:
 libk.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)
 
-%.o: %.c
-	$(CC) -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS) $(CONF)
-
-%.o: %.asm
-	$(ASM) $(ASFLAGS) -o $@ $< 
+%.c.o: %.c Makefile
+	$(CC) -c $< -o $@ -MMD -std=gnu11 $(CFLAGS) $(CPPFLAGS) $(CONF)
+ 
+#%.asm.o: %.asm Makefile
+#	$(ASM) $(ASFLAGS) -o $@ $< 
 
 clean:
 	rm -f libk.a $(OBJS)
@@ -49,3 +49,5 @@ install-libs: $(DESTDIR)$(LIBDIR)/libk.a
 $(DESTDIR)$(LIBDIR)/libk.a: libk.a
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	cp libk.a $@
+
+-include $(DEPFILES)

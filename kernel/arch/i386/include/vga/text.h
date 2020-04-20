@@ -1,7 +1,14 @@
 #ifndef I386_VGA_TEXT_H
 #define I386_VGA_TEXT_H
 
+/*
+ * This is the low level vga text driver. See vga/vt100.h for a higher level console.
+ */
+
 #include <libk/utils.h>
+
+#define VGA_SCREEN_HEIGHT 25
+#define VGA_SCREEN_WIDTH 80
 
 #define VGA_TEXT_COLOR_BLACK          0x0
 #define VGA_TEXT_COLOR_BLUE           0x1
@@ -22,18 +29,17 @@
 
 void vga_text_init(void);
 
-void vga_text_set_mode(uint8_t foreground_colour, uint8_t background_colour);
+typedef struct{
+    struct{
+        uint8_t x, y;
+    }cursor;
+    struct{
+        uint8_t background, foreground;
+    }color;
+} vga_text_control;
 
-void vga_text_set_cursor_pos(uint8_t x, uint8_t y);
-void vga_text_get_cursor_pos(uint8_t x, uint8_t y);
-
-
-/* Cleanup screen */
-void vga_text_clean(void);
-
-/* Write *size* characters on vga_text*/
-void vga_text_write(const char* c, size_t size);
-
-void vga_text_putchar(char c);
+void vga_text_write(const vga_text_control*, char);
+void vga_text_clear(void);
+void vga_text_scroll(uint8_t);
 
 #endif /* ifndef I386_VGA_TEXT_H */

@@ -37,6 +37,13 @@ char serial_getchar(){
     return (char)inb(PORT_COM1);
 }
 
+void serial_puts(const char* s){
+    while(*s != 0){
+        serial_putchar(*s);
+        s++;
+    }
+}
+
 void serial_putchar(char c){
     while(serial_is_transmit_okay());
     outb(PORT_COM1, (uint8_t) c);

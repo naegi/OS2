@@ -36,7 +36,9 @@ export LIBS_COMMON:=
 
 QEMU=qemu-system-$(HOSTARCH)
 
-QEMU_FLAGS_COMMON?= -kernel kernel/kernel.kernel  -nographic -serial mon:stdio
+QEMU_FLAGS_COMMON?= -kernel kernel/kernel.kernel 
+QEMU_FLAGS_GRAPHIC?= -serial stdio
+QEMU_FLAGS_NOGRAPHIC?= -nographic -serial mon:stdio
 
 QEMU_FLAGS?=
 
@@ -45,7 +47,7 @@ QEMU_DEBUG_FLAGS?= -S -s -d guest_errors
 BOCHS?=bochs
 BOCHS_FLAGS?=-f boshrc
 
-.PHONY: all bear clean install-all install install-headers qemu qemu-gdb bochs todolist
+.PHONY: all bear clean install-all install install-headers qemu qemu-gdb qemu-graphic qemu-graphic-gdb bochs todolist
 
 all: install-all
 
@@ -72,10 +74,16 @@ clean:
 	rm -f compile_commands.json
 
 qemu: all
-	$(QEMU) $(QEMU_FLAGS_COMMON) $(QEMU_FLAGS)
+	$(QEMU) $(QEMU_FLAGS_COMMON) $(QEMU_FLAGS_NOGRAPHIC) $(QEMU_FLAGS)
+
+qemu-graphic: all
+	$(QEMU) $(QEMU_FLAGS_COMMON) $(QEMU_FLAGS_GRAPHIC) $(QEMU_FLAGS)
 
 qemu-gdb: all
-	$(QEMU) $(QEMU_FLAGS_COMMON) $(QEMU_DEBUG_FLAGS)
+	$(QEMU) $(QEMU_FLAGS_COMMON) $(QEMU_FLAGS_NOGRAPHIC) $(QEMU_DEBUG_FLAGS)
+
+qemu-graphic-gdb: all
+	$(QEMU) $(QEMU_FLAGS_COMMON) $(QEMU_FLAGS_GRAPHIC) $(QEMU_DEBUG_FLAGS)
 
 bochs: $(OS_NAME).iso
 	$(BOCHS) $(BOCHS_FLAGS)
