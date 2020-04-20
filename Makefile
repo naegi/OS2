@@ -23,7 +23,7 @@ export ASFLAGS=-felf32
 
 export CFLAGS_COMMON:=-g -Og\
     -std=gnu11 \
-    -ffreestanding -fbuiltin -Werror\
+    -ffreestanding -fbuiltin \
     -I=$(INCLUDEDIR) \
     -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
             -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
