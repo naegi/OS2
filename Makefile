@@ -25,7 +25,7 @@ export CFLAGS_COMMON:=-g -Og\
     -std=gnu11 \
     -ffreestanding -fbuiltin \
     -I=$(INCLUDEDIR) \
-    -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
+    -Werror -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
             -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
             -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
             -Wconversion -Wstrict-prototypes
@@ -85,7 +85,10 @@ qemu-gdb: all
 qemu-graphic-gdb: all
 	$(QEMU) $(QEMU_FLAGS_COMMON) $(QEMU_FLAGS_GRAPHIC) $(QEMU_DEBUG_FLAGS)
 
-bochs: $(OS_NAME).iso
+kernel/kernel.sym: kernel/kernel.kernel
+	nm $< | grep " T " | awk '{ print $$1" "$$3 }' > $@
+
+bochs: $(OS_NAME).iso kernel/kernel.sym
 	$(BOCHS) $(BOCHS_FLAGS)
 
 bear:

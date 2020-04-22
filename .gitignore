@@ -1,6 +1,6 @@
 *.d
 *.o
-.boshrc
+boshrc
 *.iso
 isodir
 sysroot

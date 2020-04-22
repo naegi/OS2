@@ -5,11 +5,13 @@ gdtr:
     dw 0 ; limit
     dd 0 ; base
 
-gdt_setup:
-    mov eax, [esp + 4] ; fill gdtr
+gdt_setup:;(void* gdt, size_t limit)
+    ; fill gdtr
+    mov eax, [esp + 4]
     mov [gdtr + 2], eax
     mov ax, [esp + 8]
     mov [gdtr], ax
+
     lgdt [gdtr] 
     ret
 
