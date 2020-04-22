@@ -41,7 +41,7 @@ void vga_text_scroll(uint8_t n){
     }
 }
 
-void vga_text_write(const vga_text_control* v, char c){
+void vga_text_write(const vga_text_control_t* v, char c){
     uint16_t* const loc = vga_text_base_address + (v->cursor.y * VGA_SCREEN_WIDTH + v->cursor.x);
 
     *loc = (uint16_t) c | (uint16_t)((v->color.foreground & 0xF) << 8)

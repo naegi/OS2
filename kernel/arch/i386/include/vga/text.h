@@ -36,9 +36,9 @@ typedef struct{
     struct{
         uint8_t background, foreground;
     }color;
-} vga_text_control;
+} vga_text_control_t;
 
-void vga_text_write(const vga_text_control*, char);
+void vga_text_write(const vga_text_control_t*, char);
 void vga_text_clear(void);
 void vga_text_scroll(uint8_t);
 

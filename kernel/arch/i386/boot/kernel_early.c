@@ -4,6 +4,7 @@
 #include <kernel/i386/gdt.h>
 #include <kernel/i386/idt.h>
 #include <kernel/i386/multiboot.h>
+#include <kernel/i386/paging.h>
 #include <kernel/i386/serial.h>
 #include <kernel/i386/vga/text.h>
 #include <kernel/i386/vga/console.h>
@@ -31,9 +32,7 @@ void kernel_early(multiboot_info_t* mbd, uint32_t magic){
 
     gdt_init();
     idt_init();
-    volatile int a = 0;
-    volatile int b = 5  / a;
-    UNUSED(b);
+    paging_init();
 
     vga_text_init();
     vga_console_init();

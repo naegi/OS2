@@ -4,7 +4,7 @@
 #include <kernel/i386/vga/text.h>
 
 
-static vga_text_control ctrl;
+static vga_text_control_t ctrl;
 
 void vga_console_init(){
     vga_console_reset();
