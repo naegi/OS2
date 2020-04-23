@@ -35,7 +35,7 @@ libk.a: $(OBJS)
 #	$(ASM) $(ASFLAGS) -o $@ $< 
 
 clean:
-	rm -f libk.a $(OBJS)
+	rm -f libk.a $(OBJS) $(DEPFILES)
 
 install-headers: $(DESTDIR)$(INCLUDEDIR)/libk
 

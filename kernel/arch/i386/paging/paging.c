@@ -4,15 +4,14 @@
 
 // We use 4Mbyte paging (for now) so we don't have page_table (Cf. Intel Vol 3 fig 4.2)
 
-uint32_t page_directory_kernel[1024]; // Have to be 4Kb aligned, and have 1024 entries
-uint32_t page_table_kernel[1024]; // Have to be 4Kb aligned, and have 1024 entries
+uint32_t page_directory_kernel[1024] __attribute__((aligned(4096))); // Have to be 4Kb aligned, and have 1024 entries
+uint32_t page_table_kernel[1024] __attribute__((aligned(4096))); // Have to be 4Kb aligned, and have 1024 entries
 
 
 void paging_encode_page_table_entry(uint32_t* page_table_entry, page_entry_t entry){
     *page_table_entry = 0;
     *page_table_entry = entry.page_frame_address & 0XFFFFF000;
     *page_table_entry |= entry.flags & 0x01FFF;
-    *page_table_entry |=  0x80; // Set bits 7 => page size = 4Mb
 }
 
 void paging_encode_page_directory_table(uint32_t* page_directory_entry, page_directory_t entry){
@@ -36,8 +35,8 @@ void paging_init(){
     paging_encode_page_directory_table(page_directory_kernel + 0, // Surpervisor, RW, P
             (page_directory_t){.page_table_address=(uint32_t)page_table_kernel, .flags=0x7});
 
-    // Identity map first Mb
-    for (size_t i = 0; i < 256; ++i) {
+    // Identity map first 4Mb
+    for (size_t i = 0; i < 1024; ++i) {
         paging_encode_page_table_entry(page_table_kernel + i,
                 (page_entry_t){.page_frame_address=i*0x1000, .flags=0x7});
     }
