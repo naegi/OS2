@@ -3,7 +3,8 @@
 
 #include <libk/utils.h>
 
-void idt_init(void);
+void interrupts_init(void);
+void interrupts_install(size_t no, void* handler, bool user_available);
 void idt_setup(void*, size_t);
 
 void ASM int_gate_0(void);

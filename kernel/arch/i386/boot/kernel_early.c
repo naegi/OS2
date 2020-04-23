@@ -2,7 +2,8 @@
 
 #include <kernel/i386/asm/io.h>
 #include <kernel/i386/gdt.h>
-#include <kernel/i386/idt.h>
+#include <kernel/i386/interrupts.h>
+#include <kernel/i386/kcall.h>
 #include <kernel/i386/multiboot.h>
 #include <kernel/i386/paging.h>
 #include <kernel/i386/serial.h>
@@ -28,11 +29,13 @@ void kernel_early(multiboot_info_t* mbd, uint32_t magic){
     UNUSED(magic);
 
 
-    outw(0x8A00,0x8A00); outw(0x8A00,0x08AE0); // Bochs BP
 
     gdt_init();
-    idt_init();
+    interrupts_init();
     paging_init();
+
+    kcall_init();
+    kcall(0x10, (void*)kcall_init);
 
     vga_text_init();
     vga_console_init();

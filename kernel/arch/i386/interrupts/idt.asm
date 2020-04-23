@@ -26,7 +26,7 @@ int_gate_ %+ %1 :
     push fs
     push es
     push ds
-    ; TODO: set kernel data segment
+
     cld ; DF should be cleared (sysV ABI)
 
     call %2
@@ -43,7 +43,7 @@ int_gate_ %+ %1 :
 %macro int_gate_arg 2
 global int_gate_ %+ %1
 int_gate_ %+ %1 :
-    pushad ; eax, ecx, edx, original esp, ebp, esi, edi
+    pushad ; eax, ecx, edx, ebx, original esp, ebp, esi, edi
     push gs
     push fs
     push es

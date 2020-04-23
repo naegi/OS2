@@ -1,9 +1,10 @@
 #include <libk/utils.h>
+#include <libk/kassert.h>
 
-#include <kernel/i386/idt.h>
+#include <kernel/i386/interrupts.h>
 
 
-#define IDT_SIZE 32
+#define IDT_SIZE 256
 
 static uint64_t idt[IDT_SIZE];
 
@@ -28,7 +29,16 @@ static void encode_interrupt_gate(uint64_t* idt_entry, interrupt_gate_descriptor
     loc[3] = (descr.offset & 0xFFFF0000) >> 16;
 }
 
-void idt_init(){
+void interrupts_install(size_t no, void* handler, bool user_available){
+    kassert(32 <= no && no <= 255);
+    encode_interrupt_gate(idt+no, (interrupt_gate_descriptor_t){
+            .segment_selector=0x08, // kernel code
+            .offset=(uint32_t)handler,
+            .flags= user_available ? 0x4 : 0x7 // present, ring 3 is user_available, else ring 0
+            }, false);
+}
+
+void interrupts_init(){
     interrupt_gate_descriptor_t gate_not_used = {.offset=0, .segment_selector=0, .flags=0};
     // See Volume 3 table 6.1 for list of exceptions and interrupts
 
