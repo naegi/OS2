@@ -11,5 +11,6 @@
 
 size_t itoa_buffsize(int x, unsigned int base);
 void itoa(int x, char* buff, unsigned int base);
+int atoi(char* x);
 
 #endif /* ifndef UTILS_H */

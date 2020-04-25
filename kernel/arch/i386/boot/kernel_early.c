@@ -13,12 +13,14 @@
 #include <kernel/i386/regs.h>
 
 #include <libk/io.h>
+#include <libk/logging.h>
+#include <libk/kassert.h>
 #include <libk/utils.h>
 
 void bpoint(regs_t regs);
 void bpoint(regs_t reg){
     // Funky function for test prupose
-    printfk("%x -- %x", reg.eflags, reg.eip);
+    info("%x -- %x", reg.eflags, reg.eip);
     for(;;);
 }
 
@@ -41,5 +43,12 @@ void kernel_early(multiboot_info_t* mbd, uint32_t magic){
     vga_console_init();
     serial_init();
 
-    printfk("%c\n%s\ntest\n%d \n%x\n%o\n", 'a', "Un string", 51, 0xCE, 0xCE);
+    log_set_level(LOG_DEBUG);
+    debug("Meuh");
+    info("TEst");
+    warn("BAH");
+    err("BOUH %d", 4 + 4);
+    printfk("TEST\n");
+    kassert_m(0==1, "BOUH");
+
 }

@@ -53,11 +53,11 @@ todolist:
 	grep -nRi --color=always --include='*.c' --include='*.h' --include='*.asm' todo
 	grep -nRi --color=always --include='*.c' --include='*.h' --include='*.asm' fixme
 
-kernel.kernel: $(OBJ_LINK_LIST) $(ARCHDIR)/linker.ld
+kernel.kernel: $(OBJ_LINK_LIST) $(ARCHDIR)/linker.ld ../libk/libk.a
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(OBJ_LINK_LIST) $(LDFLAGS) $(LIBS)
 
 %.c.o: %.c Makefile
-	$(CC) -c $< -o $@ -std=gnu11 -MMD $(CFLAGS) $(CPPFLAGS) $(CONF) 
+	$(CC) -c $< -o $@ -std=gnu11 -MMD $(CFLAGS) $(CONF) 
 
 %.asm.o: %.asm Makefile
 	$(ASM) $(ASFLAGS) $< -o $@

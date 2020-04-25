@@ -5,6 +5,7 @@ CPPFLAGS:=$(CPPFLAGS_COMMON)
 include def.config
 
 include io/make.config
+include logging/make.config
 include utils/make.config
 
 HOSTEDOBJS:=\
@@ -14,6 +15,7 @@ SRCFILES := $(LIBK_SRC)
 
 DEPFILES := $(patsubst %.c,%.c.d,$(SRCFILES))
 OBJS := $(patsubst %.c,%.c.o,$(SRCFILES)) 
+
 
 INCLUDES := $(shell find include -name '*.h')
 
@@ -29,7 +31,7 @@ libk.a: $(OBJS)
 	$(AR) rcs $@ $(OBJS)
 
 %.c.o: %.c Makefile
-	$(CC) -c $< -o $@ -MMD -std=gnu11 $(CFLAGS) $(CPPFLAGS) $(CONF)
+	$(CC) -c $< -o $@ -MMD -std=gnu11 $(CFLAGS) $(CONF)
  
 #%.asm.o: %.asm Makefile
 #	$(ASM) $(ASFLAGS) -o $@ $< 
