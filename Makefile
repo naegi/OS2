@@ -28,7 +28,7 @@ export CFLAGS_COMMON:=-g -Og\
     -Werror -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
             -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
             -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
-            -Wconversion -Wstrict-prototypes
+            -Wconversion -Wstrict-prototypes -Wno-gnu-zero-variadic-macro-arguments
 
 export CPPFLAGS_COMMON:=
 export LDFLAGS_COMMON:=

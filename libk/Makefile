@@ -1,12 +1,14 @@
 CFLAGS:=$(CFLAGS_COMMON)
 CPPFLAGS:=$(CPPFLAGS_COMMON)
 
+PWD = $(shell pwd)
 
 include def.config
 
 include io/make.config
 include logging/make.config
 include utils/make.config
+include string/make.config
 
 HOSTEDOBJS:=\
     $(ARCH_HOSTEDOBJS) \
@@ -43,7 +45,7 @@ install-headers: $(DESTDIR)$(INCLUDEDIR)/libk
 
 $(DESTDIR)$(INCLUDEDIR)/libk: $(INCLUDES)
 	mkdir -p $@
-	cp -RTpv include $@
+	cp -sRTpv $(PWD)/include $@
 	touch $@
 
 install-libs: $(DESTDIR)$(LIBDIR)/libk.a

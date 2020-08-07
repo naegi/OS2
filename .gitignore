@@ -8,3 +8,4 @@ sysroot
 .gdb_history
 bx_enh_dbg.ini
 compile_commands.json
+.clangd

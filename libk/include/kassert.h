@@ -4,8 +4,8 @@
 #include <libk/logging.h>
 #include <libk/utils.h>
 
-#define kerror(s) { \
-    err(make_debug_intro_format(s)); \
+#define kerror(...) { \
+    assert_func(__VA_ARGS__); \
     for(;;); \
 }
 

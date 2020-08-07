@@ -7,7 +7,8 @@ static const char *log_msg[] = {
     "DEBUG: ",
     "INFO: ",
     "WARNING: ",
-    "ERROR: "
+    "ERROR: ",
+    "ASSERT: ",
 };
 
 #ifndef NO_COLOR
@@ -16,7 +17,8 @@ static const char *log_colors[] = {
     "37m",// white
     "34m", // blue
     "33m", // yellow
-    "41;30m" // black on red
+    "41;30m", // black on red
+    "41;30m", // black on red
 };
 
 #define COLOR_PREFIX "\x1B[" // escape key code
@@ -33,15 +35,15 @@ void _logf(int log_level, const char* fmt, ...){
     va_start(args, fmt);
 
 #ifndef NO_COLOR
-    puts(COLOR_PREFIX);
-    puts(log_colors[log_level]);
+    fputs(COLOR_PREFIX, stdout);
+    fputs(log_colors[log_level], stdout);
 #endif
 
-    puts(log_msg[log_level]);
+    fputs(log_msg[log_level], stdout);
     vprintfk(fmt, args);
 
 #ifndef NO_COLOR
-    puts(COLOR_PREFIX COLOR_RESET);
+    fputs(COLOR_PREFIX COLOR_RESET, stdout);
 #endif
 
     putchar('\n');

@@ -39,7 +39,7 @@ void vga_console_reset(){
 
 void vga_console_write(const void* buf, size_t nbyte){
     for (size_t i = 0; i < nbyte; ++i) {
-        vga_text_write(&ctrl.text, *((char*)buf + i));
+        vga_console_putchar(*((char*)buf + i));
     }
 }
 

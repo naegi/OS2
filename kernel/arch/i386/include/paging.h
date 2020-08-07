@@ -18,8 +18,14 @@ typedef struct{
 void paging_init(void);
 void ASM paging_setup(void*); // set bit 4 of CR4 register
 
-void paging_encode_page_table_entry(uint32_t* page_table_entry, page_entry_t entry);
+// Map 4Mb with a 4kB granularity
 void paging_encode_page_directory_table(uint32_t* page_directory_entry, page_directory_t entry);
+void paging_encode_page_table_entry(uint32_t* page_table_entry, page_entry_t entry);
+
+// Map an entire 4Mb in one page
 void paging_encode_page_directory_map(uint32_t* page_directory_entry, page_entry_t entry);
+
+// Map for use in kernel use only, RW, supervisor only
+void paging_map_4MB(uint32_t logical_address, uint32_t physical_address);
 
 #endif /* ifndef I386_PAGING_H */

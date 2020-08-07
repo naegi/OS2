@@ -1,20 +1,37 @@
 #include <stdarg.h>
 
 #include <libk/utils.h>
+#include <libk/string.h>
 #include <libk/io.h>
 
-#include <kernel/i386/vga/console.h>
-#include <kernel/i386/serial.h>
+#include <kernel/i386/kcall.h>
 
 
-void puts(const char* s){
-    vga_console_puts(s);
-    serial_puts(s);
+size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream){
+    kcall_write_t kcall_write_data = {.fd=stream->fd, .buf=ptr, .count=size*nmemb};
+    kcall(KCALL_WRITE, &kcall_write_data);
+
+    return size*nmemb;
 }
 
-void putchar(char c){
-    vga_console_putchar(c);
-    serial_putchar(c);
+int fputs(const char* s, FILE *stream){
+    size_t len = strlen(s);
+    fwrite(s, 1, len, stream);
+
+    return (int)len;
+}
+
+int puts(const char* s){
+    size_t len = strlen(s);
+
+    fwrite(s, 1, len, stdout);
+    putchar('\n');
+    return (int)(len + 1); // TODO: check for overflow
+}
+
+int putchar(int c){
+    fwrite(&c, 1, 1, stdout);
+    return c;
 }
 
 size_t vprintfk_buffsize(const char* format, va_list ap);
@@ -52,8 +69,8 @@ size_t vprintfk_buffsize(const char* format, va_list ap){
                     }
                     case 'x':
                     case 'X': {
-                        int i = va_arg(ap, int);
-                        count += itoa_buffsize(i, 16);
+                        unsigned int i = va_arg(ap, unsigned int);
+                        count += uitoa_buffsize(i, 16);
                         format++;
                         break;
                     }
@@ -105,7 +122,7 @@ void vprintfk(const char* format, va_list ap){
                 switch (*format) {
                     case 's':{
                         char* s = va_arg(ap, char*);
-                        puts(s);
+                        fputs(s, stdout);
                         format++;
                         break;
                     }
@@ -119,17 +136,17 @@ void vprintfk(const char* format, va_list ap){
                         char buff[3*sizeof(int) + 1]; // 3 > log10(2**8), so every number will hold in buff
 
                         itoa(i, buff, 10);
-                        puts(buff);
+                        fputs(buff, stdout);
                         format++;
                         break;
                     }
                     case 'x':
                     case 'X': {
-                        int i = va_arg(ap, int);
+                        unsigned int i = va_arg(ap, unsigned int);
                         char buff[2*sizeof(int) + 1]; // 2 = log16(2**8)
 
-                        itoa(i, buff, 16);
-                        puts(buff);
+                        uitoa(i, buff, 16);
+                        fputs(buff, stdout);
                         format++;
                         break;
                     }
@@ -139,7 +156,7 @@ void vprintfk(const char* format, va_list ap){
                         char buff[3*sizeof(int) + 1]; // 3 > log16(2**8)
 
                         itoa(i, buff, 8);
-                        puts(buff);
+                        fputs(buff, stdout);
                         format++;
                         break;
                     }

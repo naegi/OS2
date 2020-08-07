@@ -10,6 +10,8 @@
 #include <kernel/i386/vga/text.h>
 #include <kernel/i386/vga/console.h>
 
+#include <kernel/i386/memory_management.h>
+
 #include <kernel/i386/regs.h>
 
 #include <libk/io.h>
@@ -28,27 +30,32 @@ void kernel_early(multiboot_info_t*, uint32_t);
 
 void kernel_early(multiboot_info_t* mbd, uint32_t magic){
     UNUSED(mbd);
-    UNUSED(magic);
-
-
-
     gdt_init();
     interrupts_init();
-    paging_init();
-
     kcall_init();
-    kcall(0x10, (void*)kcall_init);
 
     vga_text_init();
     vga_console_init();
     serial_init();
 
     log_set_level(LOG_DEBUG);
-    debug("Meuh");
-    info("TEst");
-    warn("BAH");
-    err("BOUH %d", 4 + 4);
-    printfk("TEST\n");
-    kassert_m(0==1, "BOUH");
+    info("Welcome");
+
+    kassert_m(magic == 0x2BADB002, "Wrong multiboot magic! Everything is fucked up. Bye")
+
+    memory_management_init(mbd);
+    kcall_mmap_t mmap_data = {0};
+    kcall(KCALL_MMAP, &mmap_data);
+    info("Got memory at 0x%X", mmap_data.addr);
+    kcall(KCALL_MMAP, &mmap_data);
+    info("Got memory at 0x%X", mmap_data.addr);
+
+    info("Freeing memory at 0x%X", mmap_data.addr);
+    kcall(KCALL_UNMMAP, &(kcall_unmmap_t){.addr=mmap_data.addr});
+
+    kcall(KCALL_MMAP, &mmap_data);
+    info("Got memory at 0x%X", mmap_data.addr);
+
+    paging_init();
 
 }

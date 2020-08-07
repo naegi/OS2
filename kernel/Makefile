@@ -1,3 +1,5 @@
+PWD = $(shell pwd)
+
 CFLAGS:=$(CFLAGS_COMMON)
 CPPFLAGS:=$(CPPFLAGS_COMMON)
 LDFLAGS:=$(LDFLAGS_COMMON)
@@ -71,8 +73,8 @@ install-headers: $(DESTDIR)$(INCLUDEDIR)/kernel
 
 $(DESTDIR)$(INCLUDEDIR)/kernel: $(INCLUDES)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/kernel
-	cp -RTpv include $@
-	cp -RTpv $(ARCHDIR)/include $@/$(HOSTARCH)
+	cp -sRTpv $(PWD)/include $@
+	cp -sRTpv $(PWD)/$(ARCHDIR)/include $@/$(HOSTARCH)
 	touch $@ # Update timestamps
 
 install-kernel: $(DESTDIR)$(BOOTDIR)/kernel.kernel
