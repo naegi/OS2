@@ -13,13 +13,13 @@
 typedef uint8_t heap_entry_t;
 
 // TODO: more optimal heap system !
-heap_entry_t heap_map[1024 * 1024]; // One MB
+static heap_entry_t heap_map[1024 * 1024]; // One MB
 
-static size_t memory_map_index_from_addr(void* addr){
+static inline size_t memory_map_index_from_addr(void* addr){
     return ((size_t) addr >> 12);
 }
 
-static void* memory_map_index_addr_from_index(size_t index){
+static inline void* memory_map_index_addr_from_index(size_t index){
     return (void*) (index << 12);
 }
 
