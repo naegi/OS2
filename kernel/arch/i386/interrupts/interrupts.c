@@ -8,11 +8,6 @@
 static uint64_t idt[IDT_SIZE];
 
 typedef struct {
-    uint16_t tss_segment_selector;
-    uint8_t flags;
-} task_gate_descriptor_t;
-
-typedef struct {
     uint32_t offset;
     uint16_t segment_selector; // Code selector
     uint8_t flags; // See intel manual Volume 3 figure 6.2 -- the 3 LSB are
@@ -39,8 +34,8 @@ void interrupts_install(size_t no, void *handler, bool user_available) {
             .segment_selector = 0x08, // kernel code
             .offset = (uint32_t)handler,
             .flags = user_available
-            ? 0x4
-            : 0x7 // present, ring 3 is user_available, else ring 0
+            ? 0x7
+            : 0x4 // present, ring 3 is user_available, else ring 0
             },
             false);
 }

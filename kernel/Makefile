@@ -73,8 +73,8 @@ install-headers: $(DESTDIR)$(INCLUDEDIR)/kernel
 
 $(DESTDIR)$(INCLUDEDIR)/kernel: $(INCLUDES)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)/kernel
-	cp -sRTpv $(PWD)/include $@
-	cp -sRTpv $(PWD)/$(ARCHDIR)/include $@/$(HOSTARCH)
+	cp -sRTpv $(PWD)/include $@ || true
+	cp -sRTpv $(PWD)/$(ARCHDIR)/include $@/$(HOSTARCH) || true
 	touch $@ # Update timestamps
 
 install-kernel: $(DESTDIR)$(BOOTDIR)/kernel.kernel

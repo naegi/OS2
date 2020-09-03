@@ -5,6 +5,8 @@
 #include <kernel/i386/regs.h>
 
 #define KCALL_WRITE 0x4
+#define KCALL_YIELD 0x5
+#define KCALL_HALT 0x6
 #define KCALL_MMAP 0x90
 #define KCALL_UNMMAP 0x91
 

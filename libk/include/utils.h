@@ -1,5 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
+#include <stdnoreturn.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -17,5 +18,7 @@ void uitoa(unsigned int x, char* buff, unsigned int base);
 size_t itoa_buffsize(int x, unsigned int base);
 void itoa(int x, char* buff, unsigned int base);
 int atoi(char* x);
+
+noreturn void halt(void);
 
 #endif /* ifndef UTILS_H */

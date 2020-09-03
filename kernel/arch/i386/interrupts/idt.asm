@@ -78,7 +78,7 @@ int_gate_arg    11, bpoint
 int_gate_arg    12, bpoint
 int_gate_arg    13, bpoint
 int_gate_arg    14, bpoint
-oint
+
 int_gate_no_arg 16, bpoint
 int_gate_arg    17, bpoint
 int_gate_no_arg 18, bpoint

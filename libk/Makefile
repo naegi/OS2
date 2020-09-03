@@ -14,9 +14,10 @@ HOSTEDOBJS:=\
     $(ARCH_HOSTEDOBJS) \
 
 SRCFILES := $(LIBK_SRC)
+ASMFILES := $(LIBK_ASM)
 
 DEPFILES := $(patsubst %.c,%.c.d,$(SRCFILES))
-OBJS := $(patsubst %.c,%.c.o,$(SRCFILES)) 
+OBJS :=  $(patsubst %.asm,%.asm.o,$(ASMFILES)) $(patsubst %.c,%.c.o,$(SRCFILES)) 
 
 
 INCLUDES := $(shell find include -name '*.h')
@@ -35,8 +36,11 @@ libk.a: $(OBJS)
 %.c.o: %.c Makefile
 	$(CC) -c $< -o $@ -MMD -std=gnu11 $(CFLAGS) $(CONF)
  
-#%.asm.o: %.asm Makefile
-#	$(ASM) $(ASFLAGS) -o $@ $< 
+%.asm.o: %.asm Makefile
+	$(ASM) $(ASFLAGS) $< -o $@
+
+%.asm: # Cancel implicit rule
+
 
 clean:
 	rm -f libk.a $(OBJS) $(DEPFILES)
@@ -45,7 +49,7 @@ install-headers: $(DESTDIR)$(INCLUDEDIR)/libk
 
 $(DESTDIR)$(INCLUDEDIR)/libk: $(INCLUDES)
 	mkdir -p $@
-	cp -sRTpv $(PWD)/include $@
+	cp -sRTpv $(PWD)/include $@ || true
 	touch $@
 
 install-libs: $(DESTDIR)$(LIBDIR)/libk.a

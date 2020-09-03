@@ -8,42 +8,43 @@
 #include <libk/kassert.h>
 #include <libk/utils.h>
 
-// bit 0 is present (physically)
-// bit 1 is available
-typedef uint8_t heap_entry_t;
+// Bits 0 -> aa are flagsS
+// No flags now
+// Bits 12->31 is index of next (free) entry, if free is set
+typedef uint32_t heap_entry_t;
+
 
 // TODO: more optimal heap system !
-static heap_entry_t heap_map[1024 * 1024]; // One MB
+static heap_entry_t heap_map[1024 * 1024]; // 4 MB
+
+static size_t first_free_index;
+static size_t last_free_index;
 
 static inline size_t memory_map_index_from_addr(void* addr){
     return ((size_t) addr >> 12);
 }
 
-static inline void* memory_map_index_addr_from_index(size_t index){
+static inline void* memory_map_addr_from_index(size_t index){
     return (void*) (index << 12);
 }
 
-static void memory_management_add_available_memory(size_t* addr, size_t length, uint8_t type){
-    for(size_t i = (size_t)memory_map_index_from_addr(addr);
-            i < (size_t)memory_map_index_from_addr(addr + length);
-            i++){
-        heap_map[i] = (type == 1);
-    }
-}
-
 void* memory_management_get_block(){
-    for (size_t i = 0; i < sizeof heap_map; ++i) {
-        if((heap_map[i] & 0x1) && !(heap_map[i] & 0x2)){
-            heap_map[i] |= 0x2;
-            return memory_map_index_addr_from_index(i);
-        }
-
+    if(first_free_index == last_free_index){ // There is only one block left
+        return (void*)BLOCK_ERROR; // Not enough memory
     }
-    return NULL;
+
+    size_t tmp = first_free_index;
+
+    first_free_index = heap_map[first_free_index] >> 12; // get next free
+
+    return memory_map_addr_from_index(tmp);
 }
 
 void memory_management_free_block(void* addr){
-    heap_map[memory_map_index_from_addr(addr)] &= ~0x2;
+    size_t index = memory_map_index_from_addr(addr);
+    heap_map[last_free_index] ^= heap_map[last_free_index] & 0xFFFFF000; // reset 24 most important bits
+    heap_map[last_free_index] |= index << 12; // set them to index
+    last_free_index = index;
 }
 
 void memory_management_init(multiboot_info_t* mbd){
@@ -54,15 +55,6 @@ void memory_management_init(multiboot_info_t* mbd){
 
     multiboot_memory_map_t* mmap;
 
-    for(mmap = (multiboot_memory_map_t*)mbd->mmap_addr;
-            (uint32_t)mmap < (uint32_t)mbd->mmap_addr + mbd->mmap_length; mmap+=1){
-        debug("memory available starting 0x%X on length of 0x%X bytes", mmap->base_addr_low, mmap->length_low);
-        memory_management_add_available_memory(
-                (size_t*)mmap->base_addr_low,
-                (size_t)mmap->length_low,
-                (uint8_t)mmap->type);
-    }
-
     extern uintptr_t start_kernel;
     extern uintptr_t end_kernel;
     info("Kernel starts at 0x%x, ends at 0x%x and has a size of %d kB", &start_kernel, &end_kernel,
@@ -71,7 +63,26 @@ void memory_management_init(multiboot_info_t* mbd){
     size_t index_kernel_low = memory_map_index_from_addr((void*)&start_kernel);
     size_t index_kernel_high = memory_map_index_from_addr((void*)&end_kernel);
 
-    for(size_t i = index_kernel_low; i <= index_kernel_high; i++){
-        heap_map[i] |= 0x2;
+    bool first_free = false;
+
+
+    // Setup available and free memory
+    for(mmap = (multiboot_memory_map_t*)mbd->mmap_addr; (uint32_t)mmap < (uint32_t)mbd->mmap_addr + mbd->mmap_length; mmap+=1){
+        debug("memory available starting 0x%X on length of 0x%X bytes, of type %d", mmap->base_addr_low, mmap->length_low, mmap->type);
+        if(mmap->type != 1) // is memory really available ?
+            continue;
+
+        for(size_t i = (size_t)memory_map_index_from_addr((size_t*)mmap->base_addr_low);
+                i < (size_t)memory_map_index_from_addr((size_t*)mmap->base_addr_low + mmap->length_low);
+                i++){
+            if (!(index_kernel_low <= i && i < index_kernel_high)){ // if memory is free (not used by kernel)
+                if(first_free){
+                    first_free_index = i;
+                    first_free = true;
+                }
+                heap_map[last_free_index] = i << 12;
+                last_free_index = i;
+            }
+        }
     }
 }

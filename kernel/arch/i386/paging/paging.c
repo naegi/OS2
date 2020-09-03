@@ -35,24 +35,27 @@ void paging_encode_page_directory_map(uint32_t* page_directory_entry, page_entry
 void paging_init(){
     UNUSED(paging_encode_page_directory_map);
 
-    extern uintptr_t end_kernel;
 
-    uint32_t kernel_size_Mb = SIZE_MB(0, (uint32_t)&end_kernel);
-
-    //warn_func("TODO: Identity map all kernel instead of first 4Mb");
-
-    kassert_m(kernel_size_Mb < 4, "Paging of kernel will fail: kernel don't stand in 4Mb! (1st Mb wasten)");
-
-    //TODO: do not identity page all memory
-    for(unsigned int i = 0; i< 1024; i++){
-        paging_map_4MB(i << 22, i << 22);
-    }
+    paging_map_kernel(page_directory_kernel, PAGING_SUPERVISOR | PAGING_RW | PAGING_PRESENT);
     paging_setup(page_directory_kernel);
 }
 
+void paging_map_4MB_kernel(uint32_t logical_address, uint32_t physical_address){
+    paging_map_4MB(page_directory_kernel, logical_address, physical_address,
+            PAGING_SUPERVISOR | PAGING_RW | PAGING_PRESENT);
+}
 
-void paging_map_4MB(uint32_t logical_address, uint32_t physical_address){
+void paging_map_kernel(uint32_t* page_directory, uint16_t flags){
+    extern uintptr_t start_kernel;
+    extern uintptr_t end_kernel;
+
+    for(size_t i= ((size_t)&start_kernel >> 22); i <= ((size_t)&end_kernel >> 22) ; i++){
+        paging_map_4MB(page_directory, i << 22, i << 22, flags);
+    }
+}
+
+void paging_map_4MB(uint32_t* page_directory, uint32_t logical_address, uint32_t physical_address, uint16_t flags){
     size_t pde_entry = logical_address >> 22;
-    paging_encode_page_directory_map(page_directory_kernel + pde_entry, // Surpervisor, RW, P
-            (page_entry_t){.page_frame_address=physical_address, .flags=0x7});
+    paging_encode_page_directory_map(page_directory + pde_entry,
+            (page_entry_t){.page_frame_address=physical_address, .flags=flags});
 }
