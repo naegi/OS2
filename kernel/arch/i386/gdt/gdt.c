@@ -1,5 +1,3 @@
-
-
 #include <libk/utils.h>
 #include <kernel/i386/tss.h>
 #include <kernel/i386/gdt.h>

@@ -51,7 +51,7 @@ void memory_management_init(multiboot_info_t* mbd){
     kassert_m(mbd->flags & (1 << 6), "No memory map in multiboot infos, can't contine. Bye.")
 
 
-    memset(heap_map, 0, sizeof heap_map * sizeof (*heap_map));
+    memset(heap_map, 0, sizeof heap_map );
 
     multiboot_memory_map_t* mmap;
 

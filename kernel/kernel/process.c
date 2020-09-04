@@ -41,8 +41,8 @@ void process_create(void* entry_point){
     process->cr3 = (uint32_t)memory_management_get_block();
     kassert(process->cr3 != BLOCK_ERROR);
 
-    memset((void*)process->cr3, 0, BLOCK_SIZE);
     paging_map_4MB_kernel(process->cr3, process->cr3);
+    memset((void*)process->cr3, 0, BLOCK_SIZE);
 
     // Allow kernel reading
     // TODO: When init will be out of kernel, we should set paging flag to PAGING_SUPERVISOR

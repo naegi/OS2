@@ -1,7 +1,7 @@
 #include <libk/utils.h>
 #include <kernel/i386/vga/text.h>
 
-static uint16_t* const vga_text_base_address = (uint16_t*) 0xB8000;
+static uint16_t* const vga_text_base_address = (uint16_t*) 0xC00B8000;
 
 void vga_text_init(){
 }

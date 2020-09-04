@@ -1,5 +1,7 @@
 #include <libk/utils.h>
 
+#include <kernel/kernel.h>
+#include <kernel/i386/asm/io.h>
 #include <kernel/i386/asm/io.h>
 #include <kernel/i386/gdt.h>
 #include <kernel/i386/interrupts.h>
@@ -47,4 +49,5 @@ void kernel_early(multiboot_info_t* mbd, uint32_t magic){
     memory_management_init(mbd);
 
     paging_init();
+    kernel_main();
 }

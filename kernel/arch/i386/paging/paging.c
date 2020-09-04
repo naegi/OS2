@@ -3,6 +3,10 @@
 #include <libk/kassert.h>
 #include <kernel/i386/paging.h>
 
+static inline uint32_t get_physical(uint32_t x){
+    return x - 0xC0000000;
+}
+
 
 // We use 4Mbyte paging (for now) so we don't have page_table (Cf. Intel Vol 3 fig 4.2)
 
@@ -33,11 +37,8 @@ void paging_encode_page_directory_map(uint32_t* page_directory_entry, page_entry
 }
 
 void paging_init(){
-    UNUSED(paging_encode_page_directory_map);
-
-
     paging_map_kernel(page_directory_kernel, PAGING_SUPERVISOR | PAGING_RW | PAGING_PRESENT);
-    paging_setup(page_directory_kernel);
+    paging_setup((void*)get_physical((uint32_t)page_directory_kernel));
 }
 
 void paging_map_4MB_kernel(uint32_t logical_address, uint32_t physical_address){
@@ -49,8 +50,8 @@ void paging_map_kernel(uint32_t* page_directory, uint16_t flags){
     extern uintptr_t start_kernel;
     extern uintptr_t end_kernel;
 
-    for(size_t i= ((size_t)&start_kernel >> 22); i <= ((size_t)&end_kernel >> 22) ; i++){
-        paging_map_4MB(page_directory, i << 22, i << 22, flags);
+    for(size_t i=((size_t)&start_kernel >> 22); i <= ((size_t)&end_kernel >> 22) ; i++){
+        paging_map_4MB(page_directory, i << 22, get_physical(i << 22), flags);
     }
 }
 
